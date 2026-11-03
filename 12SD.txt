@@ -1,0 +1,94 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+void sort(int a[], int n)
+{
+int i, j, temp;
+for(i = 0; i < n - 1; i++)
+{
+for(j = i + 1; j < n; j++)
+{
+if(a[i] > a[j])
+{
+temp = a[i];
+a[i] = a[j];
+a[j] = temp;
+}
+}
+}
+}
+void display(int a[], int n)
+{
+int i;
+for(i = 0; i < n; i++)
+{
+printf("%d ", a[i]);
+}
+printf("\n");
+}
+int main()
+{
+int n, i;
+int a[50];
+printf("Enter number of elements: ");
+scanf("%d", &n);
+printf("Enter elements:\n");
+for(i = 0; i < n; i++)
+{
+scanf("%d", &a[i]);
+}
+pid_t pid = fork();
+if(pid < 0)
+{
+printf("Fork failed.\n");
+return 1;
+}
+else if(pid == 0)
+{
+printf("\nChild Process\n");
+printf("Child PID = %d\n", getpid());
+sort(a, n);
+printf("Sorted array by child: ");
+display(a, n);
+exit(0);
+}
+else
+{
+printf("\nParent Process\n");
+printf("Parent PID = %d\n", getpid());
+sort(a, n);
+printf("Sorted array by parent: ");
+display(a, n);
+wait(NULL);
+printf("Parent waited for child using wait().\n");
+}
+return 0;
+}
+
+
+Aim
+To write a C program to demonstrate process creation using the fork() system call and process synchronization using wait().
+Objectives
+1. To understand process creation using fork().
+2. To differentiate between parent and child processes.
+3. To perform sorting independently in both processes.
+4. To understand process synchronization using wait().
+Theory
+- fork(): Creates a new child process.
+- Parent Process: Original process that creates the child process.
+- Child Process: Newly created process that executes independently.
+- getpid(): Returns the process ID.
+- wait(): Makes the parent process wait until the child process terminates.
+- Sorting: Arranges array elements in ascending order.
+Algorithm
+1. Start the program.
+2. Accept the number of elements and array elements.
+3. Call fork() to create a child process.
+4. If fork() fails, display an error message.
+5. If the process is a child, display its PID, sort and display the array.
+6. If the process is a parent, display its PID, sort and display the array.
+7. Use wait(NULL) to wait for the child process.
+8. Stop the program.
+Conclusion
+Thus, we successfully implemented process creation using fork() and synchronization using wait(). Both parent and child processes independently sorted and displayed the array.

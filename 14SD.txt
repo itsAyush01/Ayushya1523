@@ -1,0 +1,104 @@
+#include <stdio.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd.h>
+
+#define N 5
+
+pthread_mutex_t fork_mutex[N];
+sem_t room;
+
+void *philosopher(void *arg)
+{
+int id = *(int *)arg;
+
+printf("Philosopher %d is thinking.\n", id);
+
+sleep(1);
+
+sem_wait(&room);
+
+pthread_mutex_lock(&fork_mutex[id]);
+
+pthread_mutex_lock(&fork_mutex[(id + 1) % N]);
+
+printf("Philosopher %d is eating.\n", id);
+
+sleep(2);
+
+pthread_mutex_unlock(&fork_mutex[(id + 1) % N]);
+
+pthread_mutex_unlock(&fork_mutex[id]);
+
+sem_post(&room);
+
+printf("Philosopher %d finished eating.\n", id);
+
+return NULL;
+}
+
+int main()
+{
+pthread_t philosopherThread[N];
+int id[N];
+
+sem_init(&room, 0, N - 1);
+
+for(int i = 0; i < N; i++)
+{
+pthread_mutex_init(&fork_mutex[i], NULL);
+id[i] = i;
+}
+
+for(int i = 0; i < N; i++)
+{
+pthread_create(&philosopherThread[i],
+NULL,
+philosopher,
+&id[i]);
+}
+
+for(int i = 0; i < N; i++)
+{
+pthread_join(philosopherThread[i], NULL);
+}
+
+for(int i = 0; i < N; i++)
+{
+pthread_mutex_destroy(&fork_mutex[i]);
+}
+
+sem_destroy(&room);
+
+return 0;
+}
+
+
+Aim
+To implement the Dining Philosophers Problem using threads, mutex locks, and semaphores in C.
+Objectives
+1. To understand the Dining Philosophers Problem.
+2. To implement multithreading using POSIX threads.
+3. To use mutex locks for managing shared forks.
+4. To use semaphores to prevent deadlock.
+Theory
+- Philosopher: Each philosopher alternates between thinking and eating.
+- Fork: Each philosopher needs two forks to eat.
+- Mutex: Ensures that only one philosopher uses a fork at a time.
+- Semaphore: Allows a maximum of four philosophers to try eating simultaneously, helping prevent deadlock.
+- pthread: Used to create and manage philosopher threads.
+Algorithm
+1. Start the program.
+2. Initialize five mutex locks and a semaphore with value four.
+3. Create five philosopher threads.
+4. Each philosopher starts thinking.
+5. Acquire the semaphore before picking up forks.
+6. Lock the left and right forks.
+7. Display that the philosopher is eating.
+8. Unlock both forks after eating.
+9. Release the semaphore.
+10. Wait for all threads using pthread_join().
+11. Destroy mutex locks and semaphore.
+12. Stop the program.
+Conclusion
+Thus, we successfully implemented the Dining Philosophers Problem using threads, mutex locks, and semaphores to achieve synchronization and prevent deadlock.
